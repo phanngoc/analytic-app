@@ -1,0 +1,84 @@
+/* Dashboard CSS */
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+.table {
+    font-size: 0.875rem;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+.text-truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+}
+
+/* Chart containers */
+canvas {
+    max-height: 400px;
+}
+
+/* Stats cards */
+.card.bg-primary, .card.bg-success, .card.bg-info, 
+.card.bg-warning, .card.bg-secondary, .card.bg-danger {
+    border: none;
+}
+
+.card.bg-primary:hover, .card.bg-success:hover, .card.bg-info:hover, 
+.card.bg-warning:hover, .card.bg-secondary:hover, .card.bg-danger:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+}

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .demo-section {
+            min-height: 60vh;
+            padding: 2rem 0;
+        }
+        .tracking-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tracking Info Display -->
+    <div class="tracking-info" id="tracking-info">
+        <strong>Analytics Demo</strong><br>
+        Session ID: <span id="session-id"></span><br>
+        Events Tracked: <span id="event-count">0</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Analytics Demo</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Dashboard</a>
+                <a class="nav-link" href="#products">Products</a>
+                <a class="nav-link" href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="demo-section bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 mx-auto text-center">
+                    <h1 class="display-4">Welcome to Analytics Demo</h1>
+                    <p class="lead">This page demonstrates event tracking. Every interaction is being tracked!</p>
+                    <button class="btn btn-primary btn-lg me-2" onclick="trackCustomEvent()">Track Custom Event</button>
+                    <button class="btn btn-outline-primary btn-lg">Another Button</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="demo-section" id="products">
+        <div class="container">
+            <h2 class="text-center mb-5">Our Products</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Product A</h5>
+                            <p class="card-text">Amazing product description here.</p>
+                            <button class="btn btn-primary" onclick="trackProductView('Product A')">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Product B</h5>
+                            <p class="card-text">Another amazing product description.</p>
+                            <button class="btn btn-primary" onclick="trackProductView('Product B')">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Product C</h5>
+                            <p class="card-text">Yet another amazing product.</p>
+                            <button class="btn btn-primary" onclick="trackProductView('Product C')">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="demo-section bg-light" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <h2 class="text-center mb-5">Contact Us</h2>
+                    <form id="contact-form" onsubmit="handleFormSubmit(event)">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2024 Analytics Demo. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="/download/brochure.pdf" class="text-white me-3" onclick="trackDownload('brochure.pdf')">Download Brochure</a>
+                    <a href="mailto:info@example.com" class="text-white">Email Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Analytics Script -->
+    <script src="/static/js/analytics.js"></script>
+    <script>
+        let eventCount = 0;
+
+        // Display session ID
+        document.getElementById('session-id').textContent = analytics.sessionId.substring(0, 20) + '...';
+
+        // Override the track method to count events
+        const originalTrack = analytics.track.bind(analytics);
+        analytics.track = function(eventData) {
+            eventCount++;
+            document.getElementById('event-count').textContent = eventCount;
+            return originalTrack(eventData);
+        };
+
+        // Custom event handlers
+        function trackCustomEvent() {
+            analytics.trackCustomEvent('Demo Button Clicked', 'interaction', {
+                source: 'hero_section',
+                button_type: 'cta'
+            });
+            alert('Custom event tracked!');
+        }
+
+        function trackProductView(productName) {
+            analytics.trackCustomEvent(`Product View: ${productName}`, 'product_interaction', {
+                product: productName,
+                section: 'product_grid'
+            });
+            alert(`Product view tracked: ${productName}`);
+        }
+
+        function trackDownload(filename) {
+            analytics.trackCustomEvent('File Download', 'download', {
+                filename: filename,
+                file_type: 'pdf'
+            });
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            analytics.trackCustomEvent('Contact Form Submitted', 'form_submit', {
+                form_type: 'contact',
+                fields_filled: 3
+            });
+            alert('Form submission tracked! (Form not actually submitted)');
+        }
+
+        // Track when user scrolls to different sections
+        function trackSectionView(sectionName) {
+            analytics.trackCustomEvent(`Section Viewed: ${sectionName}`, 'engagement', {
+                section: sectionName
+            });
+        }
+
+        // Intersection Observer for section tracking
+        const sections = document.querySelectorAll('[id]');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.target.id) {
+                    trackSectionView(entry.target.id);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Simulate user login after 5 seconds
+        setTimeout(() => {
+            analytics.setUserId('demo-user-123');
+            analytics.trackCustomEvent('User Login', 'authentication', {
+                method: 'simulated',
+                user_type: 'demo'
+            });
+            console.log('Simulated user login - now tracking with user ID');
+        }, 5000);
+    </script>
+</body>
+</html>

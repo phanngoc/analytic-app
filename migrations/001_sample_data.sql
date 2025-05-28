@@ -1,0 +1,27 @@
+-- Sample data for testing
+-- Insert sample users
+INSERT INTO users (id, first_seen, last_seen, session_count, event_count, country, city, created_at, updated_at) VALUES
+('user-1', NOW() - INTERVAL '7 days', NOW() - INTERVAL '1 hour', 5, 25, 'US', 'New York', NOW() - INTERVAL '7 days', NOW() - INTERVAL '1 hour'),
+('user-2', NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 hours', 3, 15, 'UK', 'London', NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 hours'),
+('user-3', NOW() - INTERVAL '3 days', NOW() - INTERVAL '30 minutes', 2, 12, 'CA', 'Toronto', NOW() - INTERVAL '3 days', NOW() - INTERVAL '30 minutes');
+
+-- Insert sample sessions
+INSERT INTO sessions (id, user_id, start_time, end_time, duration, event_count, landing_page, referrer, user_agent, ip_address, country, city, created_at, updated_at) VALUES
+('session-1', 'user-1', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 3600, 8, 'https://example.com/', 'https://google.com', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', '192.168.1.1', 'US', 'New York', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour'),
+('session-2', 'user-2', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '2 hours', 3600, 5, 'https://example.com/about', 'https://facebook.com', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', '192.168.1.2', 'UK', 'London', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '2 hours'),
+('session-3', 'user-3', NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes', 1800, 4, 'https://example.com/products', 'https://twitter.com', 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15', '192.168.1.3', 'CA', 'Toronto', NOW() - INTERVAL '1 hour', NOW() - INTERVAL '30 minutes');
+
+-- Insert sample events
+INSERT INTO events (id, session_id, user_id, event_type, event_name, properties, page_url, page_title, referrer, user_agent, ip_address, country, city, screen_width, screen_height, language, platform, created_at, updated_at) VALUES
+(gen_random_uuid(), 'session-1', 'user-1', 'page_view', 'Homepage View', '{"section": "header"}', 'https://example.com/', 'Homepage', 'https://google.com', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', '192.168.1.1', 'US', 'New York', 1920, 1080, 'en-US', 'Windows', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '2 hours'),
+(gen_random_uuid(), 'session-1', 'user-1', 'click', 'Button Click', '{"button": "signup"}', 'https://example.com/', 'Homepage', null, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', '192.168.1.1', 'US', 'New York', 1920, 1080, 'en-US', 'Windows', NOW() - INTERVAL '2 hours' + INTERVAL '5 minutes', NOW() - INTERVAL '2 hours' + INTERVAL '5 minutes'),
+(gen_random_uuid(), 'session-2', 'user-2', 'page_view', 'About Page View', '{"section": "navigation"}', 'https://example.com/about', 'About Us', 'https://facebook.com', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', '192.168.1.2', 'UK', 'London', 1440, 900, 'en-GB', 'macOS', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '3 hours'),
+(gen_random_uuid(), 'session-3', 'user-3', 'page_view', 'Products Page View', '{"category": "electronics"}', 'https://example.com/products', 'Products', 'https://twitter.com', 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15', '192.168.1.3', 'CA', 'Toronto', 375, 812, 'en-CA', 'iOS', NOW() - INTERVAL '1 hour', NOW() - INTERVAL '1 hour'),
+(gen_random_uuid(), 'session-1', 'user-1', 'form_submit', 'Contact Form Submit', '{"form": "contact", "success": true}', 'https://example.com/contact', 'Contact Us', null, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', '192.168.1.1', 'US', 'New York', 1920, 1080, 'en-US', 'Windows', NOW() - INTERVAL '1 hour' + INTERVAL '30 minutes', NOW() - INTERVAL '1 hour' + INTERVAL '30 minutes'),
+(gen_random_uuid(), 'session-2', 'user-2', 'download', 'PDF Download', '{"file": "brochure.pdf", "size": "2.5MB"}', 'https://example.com/downloads', 'Downloads', null, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', '192.168.1.2', 'UK', 'London', 1440, 900, 'en-GB', 'macOS', NOW() - INTERVAL '2 hours' + INTERVAL '15 minutes', NOW() - INTERVAL '2 hours' + INTERVAL '15 minutes');
+
+-- Add some recent events for today
+INSERT INTO events (id, session_id, user_id, event_type, event_name, properties, page_url, page_title, referrer, user_agent, ip_address, country, city, screen_width, screen_height, language, platform, created_at, updated_at) VALUES
+(gen_random_uuid(), 'session-today-1', 'user-1', 'page_view', 'Homepage View', '{"source": "direct"}', 'https://example.com/', 'Homepage', null, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', '192.168.1.1', 'US', 'New York', 1920, 1080, 'en-US', 'Windows', NOW() - INTERVAL '30 minutes', NOW() - INTERVAL '30 minutes'),
+(gen_random_uuid(), 'session-today-2', 'user-4', 'page_view', 'Products Page View', '{"category": "all"}', 'https://example.com/products', 'Products', 'https://google.com', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36', '192.168.1.4', 'DE', 'Berlin', 1366, 768, 'en-DE', 'Linux', NOW() - INTERVAL '15 minutes', NOW() - INTERVAL '15 minutes'),
+(gen_random_uuid(), 'session-today-3', 'user-5', 'click', 'CTA Click', '{"button": "learn_more"}', 'https://example.com/pricing', 'Pricing', 'https://linkedin.com', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', '192.168.1.5', 'FR', 'Paris', 1440, 900, 'fr-FR', 'macOS', NOW() - INTERVAL '5 minutes', NOW() - INTERVAL '5 minutes');
