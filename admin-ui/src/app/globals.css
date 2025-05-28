@@ -26,7 +26,6 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
 }
 
 /* Card & shadow for analytics */
@@ -79,4 +78,34 @@
 }
 .border-l-chart-6 {
   border-left-color: var(--color-chart-6) !important;
+}
+
+/* PopperContent z-index utilities */
+.popper-content {
+  z-index: 9999 !important;
+}
+
+.popper-content-high {
+  z-index: 10000 !important;
+}
+
+.popper-content-highest {
+  z-index: 99999 !important;
+}
+
+/* Alternative Tailwind z-index classes for PopperContent */
+.z-dropdown {
+  z-index: 1000;
+}
+
+.z-modal {
+  z-index: 1050;
+}
+
+.z-popover {
+  z-index: 1060;
+}
+
+.z-tooltip {
+  z-index: 1070;
 }
