@@ -25,14 +25,17 @@ func main() {
 	eventService := services.NewEventService(db)
 	analyticsService := services.NewAnalyticsService(db)
 	adminService := services.NewAdminService(db)
+	realTimeService := services.NewRealTimeService(db)
 
 	// Initialize handlers
-	eventHandler := handlers.NewEventHandler(eventService, adminService)
+	websocketHandler := handlers.NewWebSocketHandler(adminService)
+	eventHandler := handlers.NewEventHandler(eventService, adminService, websocketHandler)
 	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService)
 	adminHandler := handlers.NewAdminHandler(adminService)
+	realTimeHandler := handlers.NewRealTimeHandler(realTimeService, adminService)
 
 	// Setup router
-	router := setupRouter(eventHandler, analyticsHandler, adminHandler)
+	router := setupRouter(eventHandler, analyticsHandler, adminHandler, realTimeHandler, websocketHandler)
 
 	// Start server
 	log.Printf("Server starting on port %s", cfg.Port)
@@ -41,7 +44,7 @@ func main() {
 	}
 }
 
-func setupRouter(eventHandler *handlers.EventHandler, analyticsHandler *handlers.AnalyticsHandler, adminHandler *handlers.AdminHandler) *gin.Engine {
+func setupRouter(eventHandler *handlers.EventHandler, analyticsHandler *handlers.AnalyticsHandler, adminHandler *handlers.AdminHandler, realTimeHandler *handlers.RealTimeHandler, websocketHandler *handlers.WebSocketHandler) *gin.Engine {
 	router := gin.Default()
 
 	// CORS middleware
@@ -92,6 +95,16 @@ func setupRouter(eventHandler *handlers.EventHandler, analyticsHandler *handlers
 		// Script generation
 		admin.GET("/projects/:id/script", adminHandler.GetTrackingScript)
 		admin.GET("/projects/:id/script/download", adminHandler.DownloadTrackingScript)
+
+		// Real-time analytics endpoints
+		admin.GET("/projects/:id/realtime/stats", realTimeHandler.GetProjectStats)
+		admin.GET("/projects/:id/realtime/events", realTimeHandler.GetRecentEvents)
+		admin.GET("/projects/:id/realtime/event-types", realTimeHandler.GetEventTypeStats)
+		admin.GET("/projects/:id/realtime/countries", realTimeHandler.GetCountryStats)
+		admin.GET("/projects/:id/realtime/pages", realTimeHandler.GetPageStats)
+
+		// WebSocket endpoint for real-time events
+		admin.GET("/projects/:id/ws", websocketHandler.HandleWebSocket)
 	}
 
 	// Serve static files for dashboard

@@ -67,3 +67,51 @@ export interface ApiResponse<T> {
   message?: string;
   error?: string;
 }
+
+export interface RealtimeEvent {
+  id: string;
+  event_type: string;
+  event_name: string;
+  page_url?: string;
+  page_title?: string;
+  country?: string;
+  session_id: string;
+  user_id?: string;
+  properties: string;
+  created_at: string;
+}
+
+export interface ProjectStats {
+  total_events: number;
+  total_sessions: number;
+  total_users: number;
+  events_today: number;
+  sessions_today: number;
+  users_today: number;
+  last_event_time?: string;
+  active_sessions: number;
+  current_visitors: number;
+}
+
+export interface EventTypeStats {
+  event_type: string;
+  count: number;
+}
+
+export interface CountryStats {
+  country: string;
+  count: number;
+}
+
+export interface PageStats {
+  page_url: string;
+  page_title?: string;
+  count: number;
+}
+
+export interface WebSocketMessage {
+  type: string;
+  project_id?: string;
+  event?: RealtimeEvent;
+  timestamp: string;
+}

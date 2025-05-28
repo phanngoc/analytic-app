@@ -16,7 +16,8 @@ import {
   Download,
   Edit,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Activity
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -76,6 +77,12 @@ export function ProjectCard({
                 <Link href={`/projects/${project.id}/edit`} className="flex items-center">
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Project
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/projects/${project.id}/realtime`} className="flex items-center">
+                  <Activity className="h-4 w-4 mr-2" />
+                  Real-time Analytics
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onViewScript(project)}>

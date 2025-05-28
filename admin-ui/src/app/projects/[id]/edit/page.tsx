@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { ArrowLeft, Globe, Key, Code, Download, Copy, Check, RefreshCw, Save } from 'lucide-react';
+import { ArrowLeft, Globe, Key, Code, Download, Copy, Check, RefreshCw, Save, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -219,12 +219,22 @@ export default function EditProjectPage() {
               </p>
             </div>
           </div>
-          <Badge 
-            variant={project.is_active ? "default" : "secondary"}
-            className={project.is_active ? "bg-success text-success-foreground" : ""}
-          >
-            {project.is_active ? "Active" : "Inactive"}
-          </Badge>
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/projects/${project.id}/realtime`)}
+              className="flex items-center"
+            >
+              <Activity className="h-4 w-4 mr-2" />
+              Real-time Analytics
+            </Button>
+            <Badge 
+              variant={project.is_active ? "default" : "secondary"}
+              className={project.is_active ? "bg-success text-success-foreground" : ""}
+            >
+              {project.is_active ? "Active" : "Inactive"}
+            </Badge>
+          </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">

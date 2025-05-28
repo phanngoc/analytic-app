@@ -10,14 +10,16 @@ import (
 )
 
 type EventHandler struct {
-	eventService *services.EventService
-	adminService *services.AdminService
+	eventService     *services.EventService
+	adminService     *services.AdminService
+	websocketHandler *WebSocketHandler
 }
 
-func NewEventHandler(eventService *services.EventService, adminService *services.AdminService) *EventHandler {
+func NewEventHandler(eventService *services.EventService, adminService *services.AdminService, websocketHandler *WebSocketHandler) *EventHandler {
 	return &EventHandler{
-		eventService: eventService,
-		adminService: adminService,
+		eventService:     eventService,
+		adminService:     adminService,
+		websocketHandler: websocketHandler,
 	}
 }
 
@@ -83,6 +85,11 @@ func (h *EventHandler) TrackEvent(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to track event"})
 		return
+	}
+
+	// Broadcast event to WebSocket clients if handler is available
+	if h.websocketHandler != nil {
+		h.websocketHandler.BroadcastEvent(event)
 	}
 
 	c.JSON(http.StatusCreated, gin.H{

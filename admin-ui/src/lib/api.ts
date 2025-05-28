@@ -1,4 +1,4 @@
-import { Project, CreateProjectRequest, UpdateProjectRequest, DashboardStats, ApiResponse } from '@/types';
+import { Project, CreateProjectRequest, UpdateProjectRequest, DashboardStats, ApiResponse, ProjectStats, RealtimeEvent, EventTypeStats, CountryStats, PageStats } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api/v1';
 
@@ -91,7 +91,41 @@ class ApiService {
   }
 
   async getTopEventTypes(limit = 10): Promise<Array<{ event_type: string; event_count: number }>> {
-    return this.fetchApi(`/analytics/top-event-types?limit=${limit}`);
+    const response = await this.fetchApi<{ data: Array<{ event_type: string; event_count: number }> }>(`/analytics/top-event-types?limit=${limit}`);
+    return response.data || [];
+  }
+
+  // Real-time analytics methods
+  async getProjectStats(projectId: string): Promise<ProjectStats> {
+    const response = await this.fetchApi<{ stats: ProjectStats }>(`/admin/projects/${projectId}/realtime/stats`);
+    return response.stats;
+  }
+
+  async getRecentEvents(projectId: string, limit = 50): Promise<RealtimeEvent[]> {
+    const response = await this.fetchApi<{ events: RealtimeEvent[] }>(`/admin/projects/${projectId}/realtime/events?limit=${limit}`);
+    return response.events || [];
+  }
+
+  async getProjectEventTypes(projectId: string, limit = 10): Promise<EventTypeStats[]> {
+    const response = await this.fetchApi<{ stats: EventTypeStats[] }>(`/admin/projects/${projectId}/realtime/event-types?limit=${limit}`);
+    return response.stats || [];
+  }
+
+  async getProjectCountries(projectId: string, limit = 10): Promise<CountryStats[]> {
+    const response = await this.fetchApi<{ stats: CountryStats[] }>(`/admin/projects/${projectId}/realtime/countries?limit=${limit}`);
+    return response.stats || [];
+  }
+
+  async getProjectPages(projectId: string, limit = 10): Promise<PageStats[]> {
+    const response = await this.fetchApi<{ stats: PageStats[] }>(`/admin/projects/${projectId}/realtime/pages?limit=${limit}`);
+    return response.stats || [];
+  }
+
+  // WebSocket connection helper
+  createWebSocket(projectId: string): WebSocket {
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsURL = `${wsProtocol}//${window.location.host}/api/v1/admin/projects/${projectId}/ws`;
+    return new WebSocket(wsURL);
   }
 }
 
