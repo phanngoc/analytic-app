@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, TrendingUp, Users, Globe, Activity } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProjectCard } from '@/components/project-card';
 import { ProjectFormDialog } from '@/components/project-form-dialog';
+import { ScriptViewerDialog } from '@/components/script-viewer-dialog';
 import { apiService } from '@/lib/api';
 import { Project, DashboardStats } from '@/types';
 
@@ -15,6 +17,8 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showScriptDialog, setShowScriptDialog] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     loadData();
@@ -45,14 +49,58 @@ export default function AdminDashboard() {
     setShowCreateDialog(false);
   };
 
-  const handleProjectUpdated = (updatedProject: Project) => {
-    setProjects(prev => 
-      prev.map(p => p.id === updatedProject.id ? updatedProject : p)
-    );
+  const handleProjectDeleted = async (project: Project) => {
+    if (!confirm(`Are you sure you want to delete "${project.name}"?`)) return;
+    
+    try {
+      await apiService.deleteProject(project.id);
+      setProjects(prev => prev.filter(p => p.id !== project.id));
+      toast.success('Project deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      toast.error('Failed to delete project');
+    }
   };
 
-  const handleProjectDeleted = (deletedProject: Project) => {
-    setProjects(prev => prev.filter(p => p.id !== deletedProject.id));
+  const handleRegenerateKey = async (project: Project) => {
+    if (!confirm(`Are you sure you want to regenerate the API key for "${project.name}"? This will invalidate the current tracking script.`)) return;
+    
+    try {
+      const response = await apiService.regenerateApiKey(project.id);
+      const updatedProject = response.project || response.data;
+      if (updatedProject) {
+        setProjects(prev => 
+          prev.map(p => p.id === updatedProject.id ? updatedProject : p)
+        );
+        toast.success('API key regenerated successfully');
+      }
+    } catch (error) {
+      console.error('Failed to regenerate API key:', error);
+      toast.error('Failed to regenerate API key');
+    }
+  };
+
+  const handleDownloadScript = async (project: Project) => {
+    try {
+      const blob = await apiService.downloadTrackingScript(project.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analytics-${project.domain}.js`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('Script downloaded successfully');
+    } catch (error) {
+      console.error('Failed to download script:', error);
+      toast.error('Failed to download script');
+    }
+  };
+
+  const handleViewScript = (project: Project) => {
+    setSelectedProject(project);
+    setShowScriptDialog(true);
   };
 
   if (loading) {
@@ -225,11 +273,10 @@ export default function AdminDashboard() {
                 <ProjectCard
                   key={project.id}
                   project={project}
-                  onEdit={handleProjectUpdated}
                   onDelete={handleProjectDeleted}
-                  onRegenerateKey={(project) => {}}
-                  onDownloadScript={(project) => {}}
-                  onViewScript={(project) => {}}
+                  onRegenerateKey={handleRegenerateKey}
+                  onDownloadScript={handleDownloadScript}
+                  onViewScript={handleViewScript}
                 />
               ))}
             </div>
@@ -242,6 +289,16 @@ export default function AdminDashboard() {
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onSuccess={handleProjectCreated}
+      />
+
+      {/* Script Viewer Dialog */}
+      <ScriptViewerDialog
+        isOpen={showScriptDialog}
+        onClose={() => {
+          setShowScriptDialog(false);
+          setSelectedProject(null);
+        }}
+        project={selectedProject}
       />
     </div>
   );

@@ -24,10 +24,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 interface ProjectCardProps {
   project: Project;
-  onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
   onRegenerateKey: (project: Project) => void;
   onDownloadScript: (project: Project) => void;
@@ -36,7 +36,6 @@ interface ProjectCardProps {
 
 export function ProjectCard({ 
   project, 
-  onEdit, 
   onDelete, 
   onRegenerateKey, 
   onDownloadScript,
@@ -73,9 +72,11 @@ export function ProjectCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(project)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Project
+              <DropdownMenuItem asChild>
+                <Link href={`/projects/${project.id}/edit`} className="flex items-center">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Project
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onViewScript(project)}>
                 <Eye className="h-4 w-4 mr-2" />
