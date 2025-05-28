@@ -130,6 +130,11 @@ func (s *RealTimeService) GetRecentEvents(projectID uuid.UUID, limit int) ([]Rec
 		Limit(limit).
 		Find(&events).Error
 
+	// Ensure we always return an empty slice instead of nil
+	if events == nil {
+		events = []RecentEvent{}
+	}
+
 	return events, err
 }
 
@@ -147,6 +152,11 @@ func (s *RealTimeService) GetEventTypeStats(projectID uuid.UUID, limit int) ([]E
 		Order("count DESC").
 		Limit(limit).
 		Find(&stats).Error
+
+	// Ensure we always return an empty slice instead of nil
+	if stats == nil {
+		stats = []EventTypeStats{}
+	}
 
 	return stats, err
 }
@@ -166,6 +176,11 @@ func (s *RealTimeService) GetCountryStats(projectID uuid.UUID, limit int) ([]Cou
 		Limit(limit).
 		Find(&stats).Error
 
+	// Ensure we always return an empty slice instead of nil
+	if stats == nil {
+		stats = []CountryStats{}
+	}
+
 	return stats, err
 }
 
@@ -183,6 +198,11 @@ func (s *RealTimeService) GetPageStats(projectID uuid.UUID, limit int) ([]PageSt
 		Order("count DESC").
 		Limit(limit).
 		Find(&stats).Error
+
+	// Ensure we always return an empty slice instead of nil
+	if stats == nil {
+		stats = []PageStats{}
+	}
 
 	return stats, err
 }

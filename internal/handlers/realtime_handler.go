@@ -84,6 +84,11 @@ func (h *RealTimeHandler) GetRecentEvents(c *gin.Context) {
 		return
 	}
 
+	// Always return an array, even if empty
+	if events == nil {
+		events = []services.RecentEvent{}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"events": events,
 		"limit":  limit,
@@ -120,6 +125,11 @@ func (h *RealTimeHandler) GetEventTypeStats(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch event type statistics"})
 		return
+	}
+
+	// Always return an array, even if empty
+	if stats == nil {
+		stats = []services.EventTypeStats{}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -160,6 +170,11 @@ func (h *RealTimeHandler) GetCountryStats(c *gin.Context) {
 		return
 	}
 
+	// Always return an array, even if empty
+	if stats == nil {
+		stats = []services.CountryStats{}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"stats": stats,
 		"limit": limit,
@@ -196,6 +211,11 @@ func (h *RealTimeHandler) GetPageStats(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch page statistics"})
 		return
+	}
+
+	// Always return an array, even if empty
+	if stats == nil {
+		stats = []services.PageStats{}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
