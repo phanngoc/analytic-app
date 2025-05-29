@@ -134,39 +134,35 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-primary/5">
+    <div className="min-h-full bg-gradient-to-br from-background via-muted/30 to-primary/5">
       {/* Header */}
       <div className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 analytics-gradient rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                  Analytics Hub
-                </h1>
-                <p className="text-muted-foreground">
-                  Professional analytics platform for data-driven insights
-                </p>
-              </div>
+        <div className="px-6 py-4 md:px-6">
+          <div className="flex items-center justify-between ml-12 md:ml-0">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                Dashboard
+              </h1>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Overview of your analytics projects and metrics
+              </p>
             </div>
             <Button 
               onClick={() => router.push('/projects/create')}
               className="analytics-gradient hover:shadow-analytics-hover transition-all duration-200"
+              size="sm"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              New Project
+              <Plus className="h-4 w-4 mr-0 md:mr-2" />
+              <span className="hidden md:inline">New Project</span>
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="px-4 md:px-6 py-6">
         {/* Stats Overview */}
         {stats && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-8">
             <Card className="metric-card border-l-4 border-l-primary hover:shadow-analytics-hover transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Total Projects</CardTitle>
@@ -263,7 +259,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {projects.map((project) => (
                 <ProjectCard
                   key={project.id}
