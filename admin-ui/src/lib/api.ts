@@ -1,6 +1,7 @@
 import { Project, CreateProjectRequest, UpdateProjectRequest, DashboardStats, ApiResponse, ProjectStats, RealtimeEvent, EventTypeStats, CountryStats, PageStats } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api/v1';
+// Use Next.js API routes as proxy to Go backend
+const API_BASE_URL = '/api/v1';
 
 class ApiService {
   private async fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -123,9 +124,11 @@ class ApiService {
 
   // WebSocket connection helper
   createWebSocket(projectId: string): WebSocket {
+    // Get WebSocket URL from Next.js API
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsURL = `${wsProtocol}//${window.location.host}/api/v1/admin/projects/${projectId}/ws`;
-    return new WebSocket(wsURL);
+    const goApiUrl = process.env.NEXT_PUBLIC_GO_API_BASE_URL || 'http://localhost:8080/api/v1';
+    const wsURL = goApiUrl.replace('http://', 'ws://').replace('https://', 'wss://');
+    return new WebSocket(`${wsURL}/admin/projects/${projectId}/ws`);
   }
 }
 
