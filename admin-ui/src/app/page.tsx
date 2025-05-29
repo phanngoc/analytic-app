@@ -3,20 +3,20 @@
 import { useState, useEffect } from 'react';
 import { Plus, TrendingUp, Users, Globe, Activity } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProjectCard } from '@/components/project-card';
-import { ProjectFormDialog } from '@/components/project-form-dialog';
 import { ScriptViewerDialog } from '@/components/script-viewer-dialog';
 import { apiService } from '@/lib/api';
 import { Project, DashboardStats } from '@/types';
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showScriptDialog, setShowScriptDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -42,11 +42,6 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleProjectCreated = (project: Project) => {
-    setProjects(prev => [project, ...prev]);
-    setShowCreateDialog(false);
   };
 
   const handleProjectDeleted = async (project: Project) => {
@@ -158,7 +153,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <Button 
-              onClick={() => setShowCreateDialog(true)}
+              onClick={() => router.push('/projects/create')}
               className="analytics-gradient hover:shadow-analytics-hover transition-all duration-200"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -204,7 +199,7 @@ export default function AdminDashboard() {
 
             <Card className="metric-card border-l-4 border-l-success hover:shadow-analytics-hover transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Today's Events</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Today&apos;s Events</CardTitle>
                 <div className="w-8 h-8 bg-success/10 rounded-lg flex items-center justify-center">
                   <TrendingUp className="h-4 w-4 text-success" />
                 </div>
@@ -255,10 +250,10 @@ export default function AdminDashboard() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-foreground">No projects yet</h3>
                 <p className="text-muted-foreground text-center mb-6 max-w-md leading-relaxed">
-                  Create your first analytics project to start tracking user events and gaining valuable insights into your application's performance.
+                  Create your first analytics project to start tracking user events and gaining valuable insights into your application&apos;s performance.
                 </p>
                 <Button 
-                  onClick={() => setShowCreateDialog(true)}
+                  onClick={() => router.push('/projects/create')}
                   className="analytics-gradient hover:shadow-analytics-hover transition-all duration-200"
                   size="lg"
                 >
@@ -283,13 +278,6 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
-
-      {/* Create Project Dialog */}
-      <ProjectFormDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onSuccess={handleProjectCreated}
-      />
 
       {/* Script Viewer Dialog */}
       <ScriptViewerDialog
