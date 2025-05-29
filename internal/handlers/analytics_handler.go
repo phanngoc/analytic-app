@@ -20,11 +20,11 @@ func NewAnalyticsHandler(analyticsService *services.AnalyticsService) *Analytics
 func (h *AnalyticsHandler) GetDashboard(c *gin.Context) {
 	stats, err := h.analyticsService.GetDashboardStats()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch dashboard stats"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch dashboard stats", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, stats)
+	JSONSuccessResponse(c, stats)
 }
 
 // GetEventsByDay handles GET /analytics/events-by-day
@@ -37,14 +37,11 @@ func (h *AnalyticsHandler) GetEventsByDay(c *gin.Context) {
 
 	data, err := h.analyticsService.GetEventCountByDay(days)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch events by day"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch events by day", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": data,
-		"days": days,
-	})
+	JSONSuccessResponse(c, data, gin.H{"days": days})
 }
 
 // GetTopPages handles GET /analytics/top-pages
@@ -57,14 +54,16 @@ func (h *AnalyticsHandler) GetTopPages(c *gin.Context) {
 
 	data, err := h.analyticsService.GetTopPages(limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch top pages"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch top pages", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data":  data,
-		"limit": limit,
-	})
+	// Ensure consistent response format
+	if data == nil {
+		data = []services.TopPage{}
+	}
+
+	JSONSuccessResponse(c, data, gin.H{"limit": limit})
 }
 
 // GetTopCountries handles GET /analytics/top-countries
@@ -77,14 +76,11 @@ func (h *AnalyticsHandler) GetTopCountries(c *gin.Context) {
 
 	data, err := h.analyticsService.GetTopCountries(limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch top countries"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch top countries", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data":  data,
-		"limit": limit,
-	})
+	JSONSuccessResponse(c, data, gin.H{"limit": limit})
 }
 
 // GetTopEventTypes handles GET /analytics/top-event-types
@@ -97,12 +93,9 @@ func (h *AnalyticsHandler) GetTopEventTypes(c *gin.Context) {
 
 	data, err := h.analyticsService.GetTopEventTypes(limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch top event types"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch top event types", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data":  data,
-		"limit": limit,
-	})
+	JSONSuccessResponse(c, data, gin.H{"limit": limit})
 }

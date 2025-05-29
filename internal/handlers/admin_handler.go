@@ -21,20 +21,17 @@ func NewAdminHandler(adminService *services.AdminService) *AdminHandler {
 func (h *AdminHandler) CreateProject(c *gin.Context) {
 	var req services.CreateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
 		return
 	}
 
 	project, err := h.adminService.CreateProject(&req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to create project", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"success": true,
-		"project": project,
-	})
+	JSONSuccessResponse(c, gin.H{"project": project})
 }
 
 // GetProjects handles GET /admin/projects
@@ -54,15 +51,19 @@ func (h *AdminHandler) GetProjects(c *gin.Context) {
 
 	projects, total, err := h.adminService.GetProjects(limit, offset)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch projects", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"projects": projects,
-		"total":    total,
-		"limit":    limit,
-		"offset":   offset,
+	// Ensure projects is never nil
+	if projects == nil {
+		projects = []services.ProjectResponse{}
+	}
+
+	JSONSuccessResponse(c, projects, gin.H{
+		"total":  total,
+		"limit":  limit,
+		"offset": offset,
 	})
 }
 
@@ -71,23 +72,21 @@ func (h *AdminHandler) GetProject(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID")
 		return
 	}
 
 	project, err := h.adminService.GetProjectByID(id)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"project": project,
-	})
+	JSONSuccessResponse(c, gin.H{"project": project})
 }
 
 // UpdateProject handles PUT /admin/projects/:id
@@ -95,30 +94,27 @@ func (h *AdminHandler) UpdateProject(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID")
 		return
 	}
 
 	var req services.UpdateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
 		return
 	}
 
 	project, err := h.adminService.UpdateProject(id, &req)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to update project", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"project": project,
-	})
+	JSONSuccessResponse(c, gin.H{"project": project})
 }
 
 // DeleteProject handles DELETE /admin/projects/:id
@@ -126,24 +122,21 @@ func (h *AdminHandler) DeleteProject(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID")
 		return
 	}
 
 	err = h.adminService.DeleteProject(id)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to delete project", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Project deleted successfully",
-	})
+	JSONSuccessResponse(c, gin.H{"message": "Project deleted successfully"})
 }
 
 // RegenerateAPIKey handles POST /admin/projects/:id/regenerate-key
@@ -151,22 +144,21 @@ func (h *AdminHandler) RegenerateAPIKey(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID")
 		return
 	}
 
 	project, err := h.adminService.RegenerateAPIKey(id)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to regenerate API key"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to regenerate API key", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
+	JSONSuccessResponse(c, gin.H{
 		"project": project,
 		"message": "API key regenerated successfully",
 	})
@@ -177,7 +169,7 @@ func (h *AdminHandler) GetTrackingScript(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID")
 		return
 	}
 
@@ -185,16 +177,16 @@ func (h *AdminHandler) GetTrackingScript(c *gin.Context) {
 	project, err := h.adminService.GetProjectByID(id)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project", err.Error())
 		return
 	}
 
 	script, err := h.adminService.GenerateTrackingScript(project.APIKey)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate tracking script"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to generate tracking script", err.Error())
 		return
 	}
 
@@ -207,17 +199,17 @@ func (h *AdminHandler) GetTrackingScript(c *gin.Context) {
 func (h *AdminHandler) GetTrackingScriptByAPIKey(c *gin.Context) {
 	apiKey := c.Param("api_key")
 	if apiKey == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "API key is required"})
+		JSONErrorResponse(c, http.StatusBadRequest, "API key is required")
 		return
 	}
 
 	script, err := h.adminService.GenerateTrackingScript(apiKey)
 	if err != nil {
 		if err.Error() == "invalid API key" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Invalid API key"})
+			JSONErrorResponse(c, http.StatusNotFound, "Invalid API key")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate tracking script"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to generate tracking script", err.Error())
 		return
 	}
 
@@ -231,7 +223,7 @@ func (h *AdminHandler) DownloadTrackingScript(c *gin.Context) {
 	idParam := c.Param("id")
 	projectID, err := uuid.Parse(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID")
 		return
 	}
 
@@ -239,16 +231,16 @@ func (h *AdminHandler) DownloadTrackingScript(c *gin.Context) {
 	project, err := h.adminService.GetProjectByID(projectID)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to get project", err.Error())
 		return
 	}
 
 	script, err := h.adminService.GenerateTrackingScript(project.APIKey)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate tracking script"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to generate tracking script", err.Error())
 		return
 	}
 

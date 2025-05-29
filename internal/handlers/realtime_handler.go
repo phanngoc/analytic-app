@@ -26,7 +26,7 @@ func (h *RealTimeHandler) GetProjectStats(c *gin.Context) {
 	idStr := c.Param("id")
 	projectID, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID", err.Error())
 		return
 	}
 
@@ -34,22 +34,20 @@ func (h *RealTimeHandler) GetProjectStats(c *gin.Context) {
 	_, err = h.adminService.GetProjectByID(projectID)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found", "")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project", err.Error())
 		return
 	}
 
 	stats, err := h.realTimeService.GetProjectStats(projectID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project statistics"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project statistics", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"stats": stats,
-	})
+	JSONSuccessResponse(c, stats, nil)
 }
 
 // GetRecentEvents handles GET /admin/projects/:id/realtime/events
@@ -57,7 +55,7 @@ func (h *RealTimeHandler) GetRecentEvents(c *gin.Context) {
 	idStr := c.Param("id")
 	projectID, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID", err.Error())
 		return
 	}
 
@@ -71,16 +69,16 @@ func (h *RealTimeHandler) GetRecentEvents(c *gin.Context) {
 	_, err = h.adminService.GetProjectByID(projectID)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found", "")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project", err.Error())
 		return
 	}
 
 	events, err := h.realTimeService.GetRecentEvents(projectID, limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch recent events"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch recent events", err.Error())
 		return
 	}
 
@@ -89,10 +87,7 @@ func (h *RealTimeHandler) GetRecentEvents(c *gin.Context) {
 		events = []services.RecentEvent{}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"events": events,
-		"limit":  limit,
-	})
+	JSONSuccessResponse(c, events, gin.H{"limit": limit})
 }
 
 // GetEventTypeStats handles GET /admin/projects/:id/realtime/event-types
@@ -100,7 +95,7 @@ func (h *RealTimeHandler) GetEventTypeStats(c *gin.Context) {
 	idStr := c.Param("id")
 	projectID, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID", err.Error())
 		return
 	}
 
@@ -114,16 +109,16 @@ func (h *RealTimeHandler) GetEventTypeStats(c *gin.Context) {
 	_, err = h.adminService.GetProjectByID(projectID)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found", "")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project", err.Error())
 		return
 	}
 
 	stats, err := h.realTimeService.GetEventTypeStats(projectID, limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch event type statistics"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch event type statistics", err.Error())
 		return
 	}
 
@@ -132,10 +127,7 @@ func (h *RealTimeHandler) GetEventTypeStats(c *gin.Context) {
 		stats = []services.EventTypeStats{}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"stats": stats,
-		"limit": limit,
-	})
+	JSONSuccessResponse(c, stats, gin.H{"limit": limit})
 }
 
 // GetCountryStats handles GET /admin/projects/:id/realtime/countries
@@ -143,7 +135,7 @@ func (h *RealTimeHandler) GetCountryStats(c *gin.Context) {
 	idStr := c.Param("id")
 	projectID, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID", err.Error())
 		return
 	}
 
@@ -157,16 +149,16 @@ func (h *RealTimeHandler) GetCountryStats(c *gin.Context) {
 	_, err = h.adminService.GetProjectByID(projectID)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found", "")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project", err.Error())
 		return
 	}
 
 	stats, err := h.realTimeService.GetCountryStats(projectID, limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch country statistics"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch country statistics", err.Error())
 		return
 	}
 
@@ -175,10 +167,7 @@ func (h *RealTimeHandler) GetCountryStats(c *gin.Context) {
 		stats = []services.CountryStats{}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"stats": stats,
-		"limit": limit,
-	})
+	JSONSuccessResponse(c, stats, gin.H{"limit": limit})
 }
 
 // GetPageStats handles GET /admin/projects/:id/realtime/pages
@@ -186,7 +175,7 @@ func (h *RealTimeHandler) GetPageStats(c *gin.Context) {
 	idStr := c.Param("id")
 	projectID, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid project ID", err.Error())
 		return
 	}
 
@@ -200,16 +189,16 @@ func (h *RealTimeHandler) GetPageStats(c *gin.Context) {
 	_, err = h.adminService.GetProjectByID(projectID)
 	if err != nil {
 		if err.Error() == "project not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			JSONErrorResponse(c, http.StatusNotFound, "Project not found", "")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch project", err.Error())
 		return
 	}
 
 	stats, err := h.realTimeService.GetPageStats(projectID, limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch page statistics"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch page statistics", err.Error())
 		return
 	}
 
@@ -218,8 +207,5 @@ func (h *RealTimeHandler) GetPageStats(c *gin.Context) {
 		stats = []services.PageStats{}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"stats": stats,
-		"limit": limit,
-	})
+	JSONSuccessResponse(c, stats, gin.H{"limit": limit})
 }

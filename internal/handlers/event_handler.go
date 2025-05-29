@@ -57,19 +57,19 @@ func (h *EventHandler) TrackEvent(c *gin.Context) {
 	// Get project from middleware
 	projectInterface, exists := c.Get("project")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Project context not found"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Project context not found")
 		return
 	}
 
 	project, ok := projectInterface.(*models.Project)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid project context"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Invalid project context")
 		return
 	}
 
 	var req services.CreateEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		JSONErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
 		return
 	}
 
@@ -83,7 +83,7 @@ func (h *EventHandler) TrackEvent(c *gin.Context) {
 
 	event, err := h.eventService.CreateEvent(&req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to track event"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to track event", err.Error())
 		return
 	}
 
@@ -92,8 +92,7 @@ func (h *EventHandler) TrackEvent(c *gin.Context) {
 		h.websocketHandler.BroadcastEvent(event)
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"success":  true,
+	JSONSuccessResponse(c, gin.H{
 		"event_id": event.ID,
 		"project":  project.Name,
 	})
@@ -117,12 +116,11 @@ func (h *EventHandler) GetEvents(c *gin.Context) {
 
 	events, err := h.eventService.GetEvents(limit, offset, sessionID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch events"})
+		JSONErrorResponse(c, http.StatusInternalServerError, "Failed to fetch events", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"events": events,
+	JSONSuccessResponse(c, events, gin.H{
 		"limit":  limit,
 		"offset": offset,
 	})

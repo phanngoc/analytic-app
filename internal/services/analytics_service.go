@@ -64,15 +64,18 @@ func (s *AnalyticsService) GetDashboardStats() (*DashboardStats, error) {
 func (s *AnalyticsService) GetEventCountByDay(days int) ([]EventCountByDay, error) {
 	var results []EventCountByDay
 
+	// Calculate the start date using Go time package for better portability
+	startDate := time.Now().AddDate(0, 0, -days)
+
 	err := s.db.Raw(`
 		SELECT 
 			DATE(created_at) as date,
 			COUNT(*) as count
 		FROM events 
-		WHERE created_at >= NOW() - INTERVAL '%d days'
+		WHERE created_at >= ?
 		GROUP BY DATE(created_at)
 		ORDER BY date DESC
-	`, days).Scan(&results).Error
+	`, startDate).Scan(&results).Error
 
 	return results, err
 }

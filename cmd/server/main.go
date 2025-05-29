@@ -47,19 +47,10 @@ func main() {
 func setupRouter(eventHandler *handlers.EventHandler, analyticsHandler *handlers.AnalyticsHandler, adminHandler *handlers.AdminHandler, realTimeHandler *handlers.RealTimeHandler, websocketHandler *handlers.WebSocketHandler) *gin.Engine {
 	router := gin.Default()
 
-	// CORS middleware
-	router.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	})
+	// Add comprehensive middleware
+	router.Use(handlers.CORSMiddleware())
+	router.Use(handlers.LoggingMiddleware())
+	router.Use(handlers.ErrorHandlingMiddleware())
 
 	// Health check
 	router.GET("/health", func(c *gin.Context) {
