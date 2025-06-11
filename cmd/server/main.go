@@ -109,5 +109,12 @@ func setupRouter(eventHandler *handlers.EventHandler, analyticsHandler *handlers
 		})
 	})
 
+	// Demo route for testing tracking script
+	router.GET("/demo", func(c *gin.Context) {
+		c.HTML(200, "demo.html", gin.H{
+			"title": "Analytics Demo",
+		})
+	})
+
 	return router
 }

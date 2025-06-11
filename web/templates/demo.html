@@ -140,6 +140,13 @@
     <script>
         let eventCount = 0;
 
+        // Configure analytics with demo API key
+        window.analytics = new AnalyticsTracker({
+            endpoint: '/api/v1/track',
+            apiKey: 'ak_12345678_87654321', // Demo project API key
+            autoTrack: true
+        });
+
         // Display session ID
         document.getElementById('session-id').textContent = analytics.sessionId.substring(0, 20) + '...';
 

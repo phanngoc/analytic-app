@@ -6,13 +6,42 @@
 class AnalyticsTracker {
     constructor(options = {}) {
         this.endpoint = options.endpoint || '/api/v1/track';
-        this.sessionId = this.generateSessionId();
+        this.apiKey = options.apiKey || null;
+        this.sessionId = this.getOrCreateSessionId();
         this.userId = options.userId || null;
         this.autoTrack = options.autoTrack !== false; // Default true
-        
         if (this.autoTrack) {
             this.initAutoTracking();
         }
+    }
+
+    // Helper: Get or create session id in cookie, expire after 30 min
+    getOrCreateSessionId() {
+        const cookieName = 'analytics_session_id';
+        const expiresName = 'analytics_session_expires';
+        const now = Date.now();
+        const expiresInMs = 30 * 60 * 1000; // 30 minutes
+        const getCookie = (name) => {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        };
+        const setCookie = (name, value, ms) => {
+            const expires = new Date(Date.now() + ms).toUTCString();
+            document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+        };
+        let sessionId = getCookie(cookieName);
+        let expiresAt = parseInt(getCookie(expiresName), 10);
+        if (!sessionId || !expiresAt || now > expiresAt) {
+            sessionId = this.generateSessionId();
+            expiresAt = now + expiresInMs;
+            setCookie(cookieName, sessionId, expiresInMs);
+            setCookie(expiresName, expiresAt, expiresInMs);
+        }
+        this._sessionExpiresAt = expiresAt;
+        this._cookieName = cookieName;
+        this._expiresName = expiresName;
+        this._expiresInMs = expiresInMs;
+        return sessionId;
     }
 
     generateSessionId() {
@@ -21,6 +50,16 @@ class AnalyticsTracker {
     }
 
     async track(eventData) {
+        // Check if session expired, if yes, generate new session id and update cookie
+        const now = Date.now();
+        if (now > this._sessionExpiresAt) {
+            this.sessionId = this.generateSessionId();
+            const expiresAt = now + this._expiresInMs;
+            // Update cookies
+            document.cookie = `${this._cookieName}=${encodeURIComponent(this.sessionId)}; expires=${new Date(expiresAt).toUTCString()}; path=/`;
+            document.cookie = `${this._expiresName}=${expiresAt}; expires=${new Date(expiresAt).toUTCString()}; path=/`;
+            this._sessionExpiresAt = expiresAt;
+        }
         const payload = {
             session_id: this.sessionId,
             user_id: this.userId,
@@ -35,11 +74,18 @@ class AnalyticsTracker {
         };
 
         try {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            
+            // Add API key to headers if available
+            if (this.apiKey) {
+                headers['X-API-Key'] = this.apiKey;
+            }
+
             const response = await fetch(this.endpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify(payload)
             });
 
@@ -173,14 +219,6 @@ class AnalyticsTracker {
             this.trackCustomEvent('Page Unload', 'navigation');
         });
     }
-}
-
-// Auto-initialize if in browser environment
-if (typeof window !== 'undefined') {
-    window.AnalyticsTracker = AnalyticsTracker;
-    
-    // Auto-create global instance
-    window.analytics = new AnalyticsTracker();
 }
 
 // Export for module systems

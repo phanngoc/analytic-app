@@ -29,7 +29,7 @@ type CreateEventRequest struct {
 	PageTitle    *string                `json:"page_title,omitempty"`
 	Referrer     *string                `json:"referrer,omitempty"`
 	UserAgent    *string                `json:"user_agent,omitempty"`
-	IPAddress    string                 `json:"ip_address" binding:"required"`
+	IPAddress    string                 `json:"ip_address",omitempty`
 	Country      *string                `json:"country,omitempty"`
 	City         *string                `json:"city,omitempty"`
 	ScreenWidth  *int                   `json:"screen_width,omitempty"`
